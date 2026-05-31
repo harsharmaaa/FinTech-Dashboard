@@ -1,0 +1,6 @@
+{
+  "name": "@repo/utils",
+  "version": "0.0.0",
+  "main": "src/formatters.ts",
+  "types": "src/formatters.ts"
+}

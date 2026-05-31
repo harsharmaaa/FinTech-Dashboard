@@ -40,7 +40,7 @@ jobs:
           version: 9
 
       - run: pnpm install
-      - run: pnpm test || echo "No tests yet"
+      - run: pnpm test
 
   build:
     runs-on: ubuntu-latest

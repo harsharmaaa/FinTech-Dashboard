@@ -4,7 +4,7 @@
   "scripts": {
   "lint": "turbo run lint",
   "check-types": "turbo run check-types",
-  "test": "echo no tests yet",
+  "test": "turbo run test",
   "build": "turbo run build"
 },
   "devDependencies": {

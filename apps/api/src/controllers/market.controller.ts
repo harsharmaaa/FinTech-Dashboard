@@ -173,11 +173,21 @@ export async function getNews(req: Request, res: Response, next: NextFunction) {
 
 import { config } from "../config";
 
+interface MockEarningsEvent {
+  symbol: string;
+  companyName: string;
+  date: string;
+  fiscalQuarter: string;
+  epsEstimate: string;
+  revenueEstimate: string;
+  period: string;
+}
+
 export async function getEarnings(req: Request, res: Response, next: NextFunction) {
   try {
     const days = parseInt(req.query.days as string) || 7;
     const now = new Date();
-    const earnings = [];
+    const earnings: MockEarningsEvent[] = [];
 
     const candidates = [
       "AAPL", "MSFT", "TSLA", "NVDA", "AMZN",
@@ -210,7 +220,7 @@ export async function getEarnings(req: Request, res: Response, next: NextFunctio
 
       earnings.push({
         symbol,
-        companyName: companyNames[symbol],
+        companyName: companyNames[symbol] || "Unknown Corp",
         date: reportDate.toISOString().split("T")[0],
         fiscalQuarter: "Q2 2026",
         epsEstimate: (0.5 + Math.random() * 3.5).toFixed(2),

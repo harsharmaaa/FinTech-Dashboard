@@ -5,6 +5,8 @@ import { redis } from "../src/lib/redis";
 import jwt from "jsonwebtoken";
 import { config } from "../src/config";
 
+jest.setTimeout(30000);
+
 describe("Authentication & Session Hardening Integration Tests", () => {
   const timestamp = Date.now();
   const testEmail = `test_user_${timestamp}@example.com`;

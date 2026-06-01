@@ -8,6 +8,8 @@ type RequiredEnv = {
   SENDGRID_FROM_EMAIL: string;
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
+  ALPACA_API_KEY: string;
+  ALPACA_SECRET_KEY: string;
 };
 
 function validateConfig(env: NodeJS.ProcessEnv): RequiredEnv {
@@ -20,6 +22,8 @@ function validateConfig(env: NodeJS.ProcessEnv): RequiredEnv {
     "SENDGRID_FROM_EMAIL",
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",
+    "ALPACA_API_KEY",
+    "ALPACA_SECRET_KEY",
   ];
 
   const missing = requiredVars.filter((key) => !env[key]);
@@ -39,6 +43,8 @@ function validateConfig(env: NodeJS.ProcessEnv): RequiredEnv {
     SENDGRID_FROM_EMAIL: env.SENDGRID_FROM_EMAIL!,
     GOOGLE_CLIENT_ID: env.GOOGLE_CLIENT_ID!,
     GOOGLE_CLIENT_SECRET: env.GOOGLE_CLIENT_SECRET!,
+    ALPACA_API_KEY: env.ALPACA_API_KEY!,
+    ALPACA_SECRET_KEY: env.ALPACA_SECRET_KEY!,
   };
 }
 
@@ -71,5 +77,10 @@ export const config = {
   google: {
     clientId: env.GOOGLE_CLIENT_ID,
     clientSecret: env.GOOGLE_CLIENT_SECRET,
+  },
+  alpaca: {
+    keyId: env.ALPACA_API_KEY,
+    secretKey: env.ALPACA_SECRET_KEY,
+    paper: process.env.ALPACA_PAPER !== "false",
   },
 };

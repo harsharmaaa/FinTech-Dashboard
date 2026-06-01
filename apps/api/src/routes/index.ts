@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import authRouter from "./auth.routes";
 import userRouter from "./user.routes";
+import marketRouter from "./market.routes";
 import { authenticate } from "../middleware/authenticate";
 import { requireVerified } from "../middleware/requireVerified";
 
@@ -17,6 +18,7 @@ router.get("/health", (req, res) => {
 router.use("/auth", authRouter);
 router.use("/v1/auth", authRouter);
 router.use("/v1/users", userRouter);
+router.use("/v1/market", marketRouter);
 
 router.get("/protected", authenticate, (req, res) => {
   res.json({

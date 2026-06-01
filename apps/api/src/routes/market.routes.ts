@@ -4,6 +4,10 @@ import {
   getBars,
   searchSymbols,
   getTopMovers,
+  getOverview,
+  getNews,
+  getEarnings,
+  getAssets,
 } from "../controllers/market.controller";
 import { authenticate } from "../middleware/authenticate";
 
@@ -16,5 +20,9 @@ router.get("/quote/:symbol", getQuote);
 router.get("/bars/:symbol", getBars);
 router.get("/search", searchSymbols);
 router.get("/movers", getTopMovers);
+router.get("/overview", getOverview);
+router.get("/news", getNews);
+router.get("/calendar/earnings", getEarnings);
+router.get("/assets", getAssets);
 
 export default router;

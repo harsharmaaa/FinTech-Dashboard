@@ -289,7 +289,7 @@ export async function deleteSession(
       throw new UnauthorizedError();
     }
 
-    const sessionId = req.params.id;
+    const sessionId = req.params.id as string;
     if (!sessionId) {
       res.status(400).json({
         error: {

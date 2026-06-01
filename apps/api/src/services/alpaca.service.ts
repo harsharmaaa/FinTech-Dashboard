@@ -180,3 +180,38 @@ export async function searchSymbols(query: string) {
     tradable: asset.tradable,
   }));
 }
+
+export async function getAssets() {
+  const cacheKey = "market:assets:tradable";
+  const cached = await redis.get(cacheKey);
+  if (cached) {
+    return JSON.parse(cached);
+  }
+
+  const cacheKeyRaw = "alpaca:assets:us_equity";
+  let assetsRaw = await redis.get(cacheKeyRaw);
+  let assets: any[];
+
+  if (assetsRaw) {
+    assets = JSON.parse(assetsRaw);
+  } else {
+    assets = await alpaca.getAssets({
+      status: "active",
+      asset_class: "us_equity",
+    });
+    await redis.set(cacheKeyRaw, JSON.stringify(assets), "EX", 24 * 60 * 60);
+  }
+
+  const tradableAssets = assets
+    .filter((asset) => asset.tradable)
+    .map((asset) => ({
+      symbol: asset.symbol,
+      name: asset.name,
+      exchange: asset.exchange,
+      tradable: asset.tradable,
+    }));
+
+  // Cache for 1 hour (3600 seconds)
+  await redis.set(cacheKey, JSON.stringify(tradableAssets), "EX", 3600);
+  return tradableAssets;
+}

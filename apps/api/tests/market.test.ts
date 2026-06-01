@@ -137,6 +137,23 @@ describe("Market Data & Alpaca Integration Tests", () => {
         expect(typeof bar.volume).toBe("number");
       }
     });
+
+    it("should return 365 daily bars for AAPL in less than 200ms from the database", async () => {
+      const start = Date.now();
+      const res = await request(app)
+        .get("/api/v1/market/bars/AAPL?timeframe=1Day&limit=365")
+        .set("Authorization", `Bearer ${accessToken}`);
+      const duration = Date.now() - start;
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe("success");
+      expect(res.body.data.bars).toBeDefined();
+      expect(Array.isArray(res.body.data.bars)).toBe(true);
+      expect(res.body.data.bars.length).toBe(365);
+
+      console.log(`⏱️ API Response Time for 365 AAPL bars: ${duration}ms`);
+      expect(duration).toBeLessThan(200);
+    });
   });
 
   describe("GET /api/v1/market/search", () => {
@@ -175,6 +192,71 @@ describe("Market Data & Alpaca Integration Tests", () => {
         expect(typeof gainer.price).toBe("number");
         expect(typeof gainer.changePercent).toBe("number");
       }
+    });
+  });
+
+  describe("GET /api/v1/market/overview", () => {
+    it("should return the market overview, including clock and index prices", async () => {
+      const res = await request(app)
+        .get("/api/v1/market/overview")
+        .set("Authorization", `Bearer ${accessToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe("success");
+      expect(res.body.data.clock).toBeDefined();
+      expect(res.body.data.clock.is_open).toBeDefined();
+      expect(res.body.data.indices).toBeDefined();
+      expect(res.body.data.topGainers).toBeDefined();
+      expect(res.body.data.topLosers).toBeDefined();
+    });
+  });
+
+  describe("GET /api/v1/market/news", () => {
+    it("should return a list of recent stock market news", async () => {
+      const res = await request(app)
+        .get("/api/v1/market/news?limit=5")
+        .set("Authorization", `Bearer ${accessToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe("success");
+      expect(Array.isArray(res.body.data)).toBe(true);
+    });
+  });
+
+  describe("GET /api/v1/market/calendar/earnings", () => {
+    it("should return mock upcoming corporate earnings events", async () => {
+      const res = await request(app)
+        .get("/api/v1/market/calendar/earnings?days=7")
+        .set("Authorization", `Bearer ${accessToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe("success");
+      expect(Array.isArray(res.body.data)).toBe(true);
+      if (res.body.data.length > 0) {
+        const event = res.body.data[0];
+        expect(event.symbol).toBeDefined();
+        expect(event.companyName).toBeDefined();
+        expect(event.date).toBeDefined();
+      }
+    });
+  });
+
+  describe("GET /api/v1/market/assets", () => {
+    it("should return a cached list of active, tradable US equities", async () => {
+      const res = await request(app)
+        .get("/api/v1/market/assets")
+        .set("Authorization", `Bearer ${accessToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe("success");
+      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(res.body.data.length).toBeGreaterThan(0);
+      
+      const asset = res.body.data[0];
+      expect(asset.symbol).toBeDefined();
+      expect(asset.name).toBeDefined();
+      expect(asset.exchange).toBeDefined();
+      expect(asset.tradable).toBe(true);
     });
   });
 });

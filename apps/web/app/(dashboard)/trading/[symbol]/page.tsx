@@ -8,6 +8,13 @@ import { useQuote } from "../../../../hooks/useQuote";
 import { PriceDisplay } from "../../../../components/trading/PriceDisplay";
 import { api } from "../../../../services/api";
 
+import { CandlestickChart } from "../../../../components/trading/CandlestickChart";
+import { OrderPanel } from "../../../../components/trading/OrderPanel";
+import { PositionSummary } from "../../../../components/trading/PositionSummary";
+import { MarketDepth } from "../../../../components/trading/MarketDepth";
+import { RecentTrades } from "../../../../components/trading/RecentTrades";
+import { SymbolWatchlist } from "../../../../components/trading/SymbolWatchlist";
+
 interface PageProps {
   params: Promise<{ symbol: string }>;
 }
@@ -96,138 +103,23 @@ export default function TradingSymbolPage({ params }: PageProps) {
       </div>
 
       {/* Grid containing Chart and Sidebar Controls */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Chart Area */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 shadow-xl flex flex-col h-[480px] justify-between relative overflow-hidden group">
-            {/* Grid Mesh effect in background */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-[0.12]" />
-
-            <div className="flex items-center justify-between z-10">
-              <div className="flex items-center space-x-2">
-                <TrendingUp className="h-4 w-4 text-sky-500" />
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider">Interactive Candlestick Chart</h3>
-              </div>
-              <div className="flex space-x-1">
-                {["1m", "5m", "1H", "1D", "1W"].map((tf) => (
-                  <button
-                    key={tf}
-                    className={`text-[10px] font-extrabold px-2.5 py-1.5 rounded-lg border transition-all ${
-                      tf === "1D"
-                        ? "bg-sky-500 border-sky-600 text-white font-black"
-                        : "bg-slate-800/50 border-slate-700/50 text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    {tf}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Glowing placeholder center graphics */}
-            <div className="flex-1 flex flex-col items-center justify-center space-y-4 z-10">
-              <div className="h-16 w-16 rounded-3xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center shadow-[0_0_30px_rgba(14,165,233,0.15)] group-hover:scale-105 transition-all duration-300">
-                <TrendingUp className="h-8 w-8 text-sky-400" />
-              </div>
-              <div className="text-center max-w-sm">
-                <h4 className="text-sm font-extrabold text-white">OHLCV Candlesticks Engine</h4>
-                <p className="text-xs text-slate-400 mt-1 font-semibold leading-relaxed">
-                  Interactive TimescaleDB querying, custom timeframe intervals, and volume charts are coming in Day 21.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between border-t border-slate-800/60 pt-4 z-10 text-[10px] text-slate-500 font-semibold uppercase tracking-wider">
-              <span>Timezone: EST (NY TIME)</span>
-              <span>Alpaca Feed: IEX Real-time</span>
-            </div>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+        {/* Chart and Details Area */}
+        <div className="lg:col-span-3 space-y-6">
+          <CandlestickChart symbol={symbol} />
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <PositionSummary symbol={symbol} currentPrice={quote.price} />
+            <MarketDepth currentPrice={quote.price} />
           </div>
-
-          {/* Quick Metrics Statistics Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 shadow-md">
-              <div className="flex items-center space-x-1 text-slate-500 mb-1">
-                <DollarSign className="h-3.5 w-3.5" />
-                <span className="text-[10px] font-extrabold uppercase tracking-wider">Bid Price</span>
-              </div>
-              <p className="text-sm font-mono font-bold text-white">${quote.bid.toFixed(2)}</p>
-            </div>
-            
-            <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 shadow-md">
-              <div className="flex items-center space-x-1 text-slate-500 mb-1">
-                <Activity className="h-3.5 w-3.5" />
-                <span className="text-[10px] font-extrabold uppercase tracking-wider">Ask Price</span>
-              </div>
-              <p className="text-sm font-mono font-bold text-white">${quote.ask.toFixed(2)}</p>
-            </div>
-
-            <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 shadow-md">
-              <div className="flex items-center space-x-1 text-slate-500 mb-1">
-                <Layers className="h-3.5 w-3.5" />
-                <span className="text-[10px] font-extrabold uppercase tracking-wider">Daily Volume</span>
-              </div>
-              <p className="text-sm font-mono font-bold text-white">
-                {quote.volume > 1e6 ? `${(quote.volume / 1e6).toFixed(2)}M` : quote.volume.toLocaleString()}
-              </p>
-            </div>
-
-            <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 shadow-md">
-              <div className="flex items-center space-x-1 text-slate-500 mb-1">
-                <Percent className="h-3.5 w-3.5" />
-                <span className="text-[10px] font-extrabold uppercase tracking-wider">Spread</span>
-              </div>
-              <p className="text-sm font-mono font-bold text-white">
-                {quote.ask > quote.bid ? `$${(quote.ask - quote.bid).toFixed(2)}` : "$0.01"}
-              </p>
-            </div>
-          </div>
+          
+          <RecentTrades symbol={symbol} />
         </div>
 
         {/* Sidebar Order Actions Container */}
-        <div className="space-y-6">
-          <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 shadow-xl space-y-6 backdrop-blur-md">
-            <div>
-              <h3 className="text-sm font-extrabold text-white uppercase tracking-wider mb-1">Execution Hub</h3>
-              <p className="text-xs text-slate-500 font-semibold">Place virtual mock trading executions for this symbol.</p>
-            </div>
-
-            {/* Mock Execution Options */}
-            <div className="space-y-4">
-              <div className="flex space-x-3">
-                <button className="flex-1 bg-emerald-500 hover:bg-emerald-400 py-3 rounded-2xl text-xs font-extrabold text-white transition-all cursor-not-allowed shadow-[0_4px_12px_rgba(16,185,129,0.2)]">
-                  Buy {symbol.toUpperCase()}
-                </button>
-                <button className="flex-1 bg-rose-500 hover:bg-rose-400 py-3 rounded-2xl text-xs font-extrabold text-white transition-all cursor-not-allowed shadow-[0_4px_12px_rgba(244,63,94,0.2)]">
-                  Sell {symbol.toUpperCase()}
-                </button>
-              </div>
-
-              <div className="border-t border-slate-800/80 pt-4 space-y-3">
-                <div className="flex justify-between text-xs font-semibold">
-                  <span className="text-slate-400">Order Type</span>
-                  <span className="text-white">Market Order</span>
-                </div>
-                <div className="flex justify-between text-xs font-semibold">
-                  <span className="text-slate-400">Route Type</span>
-                  <span className="text-white">IEX Direct</span>
-                </div>
-                <div className="flex justify-between text-xs font-semibold">
-                  <span className="text-slate-400">Buying Power</span>
-                  <span className="text-emerald-400">$100,000.00 (Paper)</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 flex items-start space-x-3">
-              <ShieldCheck className="h-5 w-5 text-sky-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <h4 className="text-xs font-bold text-white">Paper Trading Enabled</h4>
-                <p className="text-[10px] text-slate-400 font-medium leading-relaxed mt-0.5">
-                  Apex operates fully under paper credentials. Rest easy, no real capital is ever put at risk.
-                </p>
-              </div>
-            </div>
-          </div>
+        <div className="space-y-6 lg:col-span-1">
+          <OrderPanel symbol={symbol} currentPrice={quote.price} />
+          <SymbolWatchlist activeSymbol={symbol} />
         </div>
       </div>
     </div>

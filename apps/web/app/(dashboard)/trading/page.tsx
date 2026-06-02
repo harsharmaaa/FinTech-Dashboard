@@ -1,7 +1,5 @@
+import { redirect } from "next/navigation";
+
 export default function Trading() {
-    return (
-        <div>
-            <h1>Trading</h1>
-        </div>
-    );
-}
+  redirect("/trading/AAPL");
+}

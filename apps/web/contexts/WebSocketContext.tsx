@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useState, useEffect, useRef } from "react";
+import React, { createContext, useState, useEffect, useRef, useCallback } from "react";
 import { useAuthStore } from "../stores/authStore";
 
 export interface WebSocketContextType {
@@ -109,7 +109,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
   };
 
-  const subscribe = (symbols: string[]) => {
+  const subscribe = useCallback((symbols: string[]) => {
     const toSubscribe: string[] = [];
 
     for (const sym of symbols) {
@@ -122,13 +122,17 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
     }
 
-    if (toSubscribe.length > 0 && isConnected && socketRef.current && isAuthSuccessfulRef.current) {
+    if (toSubscribe.length > 0 && socketRef.current && socketRef.current.readyState === WebSocket.OPEN && isAuthSuccessfulRef.current) {
       console.log(`[WS] Subscribing to: ${toSubscribe.join(", ")}`);
-      socketRef.current.send(JSON.stringify({ action: "subscribe", symbols: toSubscribe }));
+      try {
+        socketRef.current.send(JSON.stringify({ action: "subscribe", symbols: toSubscribe }));
+      } catch (err) {
+        console.error("[WS] Error sending subscribe message:", err);
+      }
     }
-  };
+  }, []);
 
-  const unsubscribe = (symbols: string[]) => {
+  const unsubscribe = useCallback((symbols: string[]) => {
     const toUnsubscribe: string[] = [];
 
     for (const sym of symbols) {
@@ -145,11 +149,15 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
     }
 
-    if (toUnsubscribe.length > 0 && isConnected && socketRef.current && isAuthSuccessfulRef.current) {
+    if (toUnsubscribe.length > 0 && socketRef.current && socketRef.current.readyState === WebSocket.OPEN && isAuthSuccessfulRef.current) {
       console.log(`[WS] Unsubscribing from: ${toUnsubscribe.join(", ")}`);
-      socketRef.current.send(JSON.stringify({ action: "unsubscribe", symbols: toUnsubscribe }));
+      try {
+        socketRef.current.send(JSON.stringify({ action: "unsubscribe", symbols: toUnsubscribe }));
+      } catch (err) {
+        console.error("[WS] Error sending unsubscribe message:", err);
+      }
     }
-  };
+  }, []);
 
   useEffect(() => {
     connect();

@@ -6,6 +6,7 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
+  console.error("💥 Backend Error:", err);
   res.status(err.status || 500).json({
     error: {
       message: err.message || "Internal Server Error",

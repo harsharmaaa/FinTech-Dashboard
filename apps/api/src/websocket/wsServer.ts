@@ -10,6 +10,16 @@ export function initWebSocketServer(server: HttpServer) {
     console.log("New WebSocket client connected.");
     ws.authenticated = false;
 
+    const safeSend = (payload: any) => {
+      if (ws.readyState === WebSocket.OPEN) {
+        try {
+          ws.send(JSON.stringify(payload));
+        } catch (err) {
+          console.error("WS safeSend error:", err);
+        }
+      }
+    };
+
     ws.on("message", async (rawData) => {
       try {
         const message = JSON.parse(rawData.toString());
@@ -19,14 +29,14 @@ export function initWebSocketServer(server: HttpServer) {
             try {
               verifyAccessToken(message.token);
               ws.authenticated = true;
-              ws.send(JSON.stringify({ type: "auth", status: "success" }));
+              safeSend({ type: "auth", status: "success" });
               console.log("WebSocket client authenticated successfully.");
             } catch (err) {
-              ws.send(JSON.stringify({ type: "error", message: "Unauthorized" }));
+              safeSend({ type: "error", message: "Unauthorized" });
               ws.close(4001, "Unauthorized");
             }
           } else {
-            ws.send(JSON.stringify({ type: "error", message: "Unauthenticated" }));
+            safeSend({ type: "error", message: "Unauthenticated" });
             ws.close(4000, "Unauthenticated");
           }
           return;
@@ -40,10 +50,10 @@ export function initWebSocketServer(server: HttpServer) {
           console.log(`Client unsubscribing from: ${message.symbols.join(", ")}`);
           unsubscribe(ws, message.symbols);
         } else {
-          ws.send(JSON.stringify({ type: "error", message: "Invalid action or format" }));
+          safeSend({ type: "error", message: "Invalid action or format" });
         }
       } catch (err) {
-        ws.send(JSON.stringify({ type: "error", message: "Invalid JSON" }));
+        safeSend({ type: "error", message: "Invalid JSON" });
       }
     });
 

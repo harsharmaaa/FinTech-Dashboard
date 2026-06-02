@@ -63,8 +63,12 @@ export function broadcast(symbol: string, data: any) {
     });
     for (const client of clientSet) {
       if (client.readyState === WebSocket.OPEN) {
-        console.log(`[SubscriptionManager] Sending quote to client.`);
-        client.send(payload);
+        try {
+          console.log(`[SubscriptionManager] Sending quote to client.`);
+          client.send(payload);
+        } catch (err) {
+          console.error(`[SubscriptionManager] Error writing quote to client socket:`, err);
+        }
       } else {
         console.warn(`[SubscriptionManager] Client socket not open. State: ${client.readyState}`);
       }

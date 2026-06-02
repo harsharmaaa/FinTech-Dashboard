@@ -11,7 +11,7 @@ import {
 } from "../controllers/market.controller";
 import { authenticate } from "../middleware/authenticate";
 
-const router = Router();
+const router: Router = Router();
 
 // Require authorization for market data access
 router.use(authenticate);

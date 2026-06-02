@@ -42,7 +42,12 @@ export async function getBars(req: Request, res: Response, next: NextFunction) {
     const limit = parseInt(req.query.limit as string) || 365;
 
     // Check TimescaleDB first
-    const dbBars = await marketDataService.getOHLCVWithLimit(symbol, timeframe, limit);
+    let dbBars: any[] = [];
+    try {
+      dbBars = await marketDataService.getOHLCVWithLimit(symbol, timeframe, limit);
+    } catch (dbErr) {
+      console.error(`[DB Error] Failed to fetch bars from TimescaleDB for ${symbol}:`, dbErr);
+    }
 
     if (dbBars.length >= limit) {
       res.status(200).json({

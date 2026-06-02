@@ -10,6 +10,8 @@ import EarningsCalendar, { EarningsEvent } from "../../../components/market/Earn
 import { api } from "../../../services/api";
 import { LineChart, ShieldAlert } from "lucide-react";
 
+import PortfolioChart from "../../../components/dashboard/PortfolioChart";
+
 export default function Dashboard() {
   const watchlist = ["AAPL", "MSFT", "TSLA", "GOOGL", "AMZN"];
 
@@ -139,25 +141,28 @@ export default function Dashboard() {
       {/* Indices Ticker Overview Horizontal Scrolling Bar */}
       <MarketOverviewBar />
 
+      {/* Watchlist Section on Top */}
+      <div className="space-y-4">
+        <div className="flex items-center px-1">
+          <span className="h-2 w-2 rounded-full bg-sky-400 mr-2.5 animate-pulse shadow-[0_0_8px_#0ea5e9]" />
+          <h2 className="text-xs font-black text-white uppercase tracking-wider select-none">
+            My Active Watchlist
+          </h2>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {watchlist.map((symbol) => (
+            <WatchlistCard key={symbol} symbol={symbol} />
+          ))}
+        </div>
+      </div>
+
       {/* Main Grid Responsive Partition Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Columns Container (occupies 2/3 of space on lg screens) */}
         <div className="lg:col-span-2 space-y-6 flex flex-col">
-          {/* Watchlist Section */}
-          <div className="space-y-4">
-            <div className="flex items-center px-1">
-              <span className="h-2 w-2 rounded-full bg-sky-400 mr-2.5 animate-pulse shadow-[0_0_8px_#0ea5e9]" />
-              <h2 className="text-xs font-black text-white uppercase tracking-wider select-none">
-                My Active Watchlist
-              </h2>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
-              {watchlist.map((symbol) => (
-                <WatchlistCard key={symbol} symbol={symbol} />
-              ))}
-            </div>
-          </div>
+          {/* D3 Portfolio Net Worth Area Chart */}
+          <PortfolioChart />
 
           {/* Top Movers section */}
           <div className="flex-1 flex flex-col">

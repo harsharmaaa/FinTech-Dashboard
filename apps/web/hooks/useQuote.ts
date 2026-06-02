@@ -31,7 +31,7 @@ export function useQuote(symbol: string) {
     let active = true;
     async function fetchInitialQuote() {
       try {
-        const res = await api.get(`/v1/market/quote/${upperSymbol}`);
+        const res = await api.get(`/api/v1/market/quote/${upperSymbol}`);
         const data = res.data.data;
         if (active) {
           setQuote({

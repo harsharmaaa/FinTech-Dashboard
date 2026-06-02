@@ -33,7 +33,7 @@ export default function Dashboard() {
       try {
         setIsOverviewLoading(true);
         setOverviewError(null);
-        const res = await api.get("/v1/market/overview");
+        const res = await api.get("/api/v1/market/overview");
         const data = res.data.data;
         if (active) {
           setClock(data.clock);
@@ -66,7 +66,7 @@ export default function Dashboard() {
       try {
         setIsNewsLoading(true);
         setNewsError(null);
-        const res = await api.get("/v1/market/news?limit=20");
+        const res = await api.get("/api/v1/market/news?limit=20");
         if (active) {
           setNews(res.data.data || []);
         }
@@ -94,7 +94,7 @@ export default function Dashboard() {
       try {
         setIsEarningsLoading(true);
         setEarningsError(null);
-        const res = await api.get("/v1/market/calendar/earnings?days=7");
+        const res = await api.get("/api/v1/market/calendar/earnings?days=7");
         if (active) {
           setEarnings(res.data.data || []);
         }

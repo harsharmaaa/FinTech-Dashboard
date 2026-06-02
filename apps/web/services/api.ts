@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useAuthStore } from "../stores/authStore";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -47,7 +47,7 @@ api.interceptors.response.use(
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url?.includes("/auth/refresh")
+      !originalRequest.url?.includes("/api/v1/auth/refresh")
     ) {
       if (isRefreshing) {
         return new Promise<string | null>((resolve, reject) => {
@@ -65,7 +65,7 @@ api.interceptors.response.use(
 
       try {
         const response = await axios.post(
-          `${API_URL}/auth/refresh`,
+          `${API_URL}/api/v1/auth/refresh`,
           {},
           { withCredentials: true }
         );

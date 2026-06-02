@@ -29,7 +29,7 @@ export default function TradingSymbolPage({ params }: PageProps) {
   useEffect(() => {
     async function loadAssetMetadata() {
       try {
-        const res = await api.get("/v1/market/assets");
+        const res = await api.get("/api/v1/market/assets");
         const list = res.data.data || [];
         const match = list.find((a: any) => a.symbol.toUpperCase() === symbol.toUpperCase());
         if (match) {

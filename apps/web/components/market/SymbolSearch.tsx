@@ -46,7 +46,7 @@ export const SymbolSearch: React.FC = () => {
 
     async function fetchAssets() {
       try {
-        const res = await api.get("/v1/market/assets");
+        const res = await api.get("/api/v1/market/assets");
         const list = res.data.data || [];
         globalAssetsList = list;
         setAssets(list);
@@ -129,7 +129,7 @@ export const SymbolSearch: React.FC = () => {
       // 2. Fallback to API search
       async function fallbackSearch() {
         try {
-          const res = await api.get(`/v1/market/search?q=${encodeURIComponent(debouncedQuery)}`);
+          const res = await api.get(`/api/v1/market/search?q=${encodeURIComponent(debouncedQuery)}`);
           const apiMatches = res.data.data.results || [];
           setResults(apiMatches.slice(0, 10));
           setActiveIndex(apiMatches.length > 0 ? 0 : -1);

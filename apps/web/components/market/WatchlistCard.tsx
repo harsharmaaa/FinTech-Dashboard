@@ -35,7 +35,7 @@ export const WatchlistCard: React.FC<WatchlistCardProps> = ({ symbol }) => {
     let active = true;
     async function fetchHistoricalData() {
       try {
-        const res = await api.get(`/v1/market/bars/${upperSymbol}?timeframe=1Day&limit=20`);
+        const res = await api.get(`/api/v1/market/bars/${upperSymbol}?timeframe=1Day&limit=20`);
         const bars = res.data.data.bars || [];
         if (active) {
           const closes = bars.map((b: any) => Number(b.close));

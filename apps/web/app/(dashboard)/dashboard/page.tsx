@@ -8,6 +8,7 @@ import TopMoversTable, { Mover } from "../../../components/market/TopMoversTable
 import NewsFeed, { NewsArticle } from "../../../components/market/NewsFeed";
 import EarningsCalendar, { EarningsEvent } from "../../../components/market/EarningsCalendar";
 import { api } from "../../../services/api";
+import { LineChart, ShieldAlert } from "lucide-react";
 
 export default function Dashboard() {
   const watchlist = ["AAPL", "MSFT", "TSLA", "GOOGL", "AMZN"];
@@ -44,7 +45,7 @@ export default function Dashboard() {
       } catch (err: any) {
         console.error("Failed to load market overview data:", err);
         if (active) {
-          setOverviewError(err.response?.data?.error?.message || "Failed to retrieve market statistics. Please try again.");
+          setOverviewError(err.response?.data?.error?.message || "Failed to retrieve market statistics.");
         }
       } finally {
         if (active) {
@@ -72,7 +73,7 @@ export default function Dashboard() {
       } catch (err: any) {
         console.error("Failed to load market news:", err);
         if (active) {
-          setNewsError(err.response?.data?.error?.message || "Failed to retrieve stock market news. Please try again.");
+          setNewsError(err.response?.data?.error?.message || "Failed to retrieve stock market news.");
         }
       } finally {
         if (active) {
@@ -100,7 +101,7 @@ export default function Dashboard() {
       } catch (err: any) {
         console.error("Failed to load earnings calendar:", err);
         if (active) {
-          setEarningsError(err.response?.data?.error?.message || "Failed to retrieve earnings calendar. Please try again.");
+          setEarningsError(err.response?.data?.error?.message || "Failed to retrieve earnings calendar.");
         }
       } finally {
         if (active) {
@@ -116,45 +117,50 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12 animate-fade-in">
-      {/* Header with Title and Market Status Clock */}
-      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-black tracking-tight text-white">
+      {/* Premium Header Title Section & Market Status Clock */}
+      <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 bg-gradient-to-br from-slate-900/20 to-slate-900/60 border border-slate-800/40 p-6 md:p-8 rounded-3xl backdrop-blur-md relative overflow-hidden group shadow-xl">
+        {/* Soft blue glowing element */}
+        <div className="absolute -left-12 -top-12 h-24 w-24 rounded-full bg-sky-500 blur-[40px] opacity-10" />
+
+        <div className="space-y-1.5 z-10">
+          <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white uppercase flex items-center bg-clip-text bg-gradient-to-r from-white via-slate-100 to-slate-400">
+            <LineChart className="h-7 w-7 text-sky-400 mr-2.5" />
             Market Dashboard
           </h1>
-          <p className="text-xs text-slate-400 font-semibold mt-1">
+          <p className="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-wider">
             Real-time equity quotes, global indices tracking, and latest market insights.
           </p>
         </div>
-        <div className="self-start sm:self-auto">
+        <div className="self-start md:self-auto z-10 shrink-0">
           <MarketStatusBadge clock={clock} />
         </div>
       </div>
 
-      {/* Indices Overview Scrolling Bar */}
+      {/* Indices Ticker Overview Horizontal Scrolling Bar */}
       <MarketOverviewBar />
 
-      {/* Main Grid Section */}
+      {/* Main Grid Responsive Partition Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column (takes 2/3 space on large screens) */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Active Watchlist Grid */}
-          <div>
-            <div className="flex items-center mb-4">
-              <span className="h-2 w-2 rounded-full bg-sky-500 mr-2 animate-pulse shadow-[0_0_8px_#0ea5e9]" />
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider">
-                My Watchlist
+        {/* Left Columns Container (occupies 2/3 of space on lg screens) */}
+        <div className="lg:col-span-2 space-y-6 flex flex-col">
+          {/* Watchlist Section */}
+          <div className="space-y-4">
+            <div className="flex items-center px-1">
+              <span className="h-2 w-2 rounded-full bg-sky-400 mr-2.5 animate-pulse shadow-[0_0_8px_#0ea5e9]" />
+              <h2 className="text-xs font-black text-white uppercase tracking-wider select-none">
+                My Active Watchlist
               </h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
               {watchlist.map((symbol) => (
                 <WatchlistCard key={symbol} symbol={symbol} />
               ))}
             </div>
           </div>
 
-          {/* Top Movers Columns */}
-          <div className="space-y-4">
+          {/* Top Movers section */}
+          <div className="flex-1 flex flex-col">
             <TopMoversTable 
               gainers={movers.gainers} 
               losers={movers.losers} 
@@ -164,12 +170,12 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Right Column (takes 1/3 space) */}
-        <div className="space-y-6 flex flex-col">
-          {/* News Feed Widget */}
+        {/* Right Columns Container (occupies 1/3 of space) */}
+        <div className="space-y-6 flex flex-col shrink-0">
+          {/* News Feed Widget Card */}
           <NewsFeed news={news} isLoading={isNewsLoading} error={newsError} />
 
-          {/* Earnings Calendar Widget */}
+          {/* Earnings Calendar Widget Card */}
           <EarningsCalendar earnings={earnings} isLoading={isEarningsLoading} error={earningsError} />
         </div>
       </div>

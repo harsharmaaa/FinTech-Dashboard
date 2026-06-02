@@ -6,6 +6,7 @@ import { PriceDisplay } from "../trading/PriceDisplay";
 import { MiniSparkline } from "../trading/MiniSparkline";
 import { Skeleton } from "../ui/skeleton";
 import { api } from "../../services/api";
+import { useRouter } from "next/navigation";
 
 const COMPANY_NAMES: Record<string, string> = {
   AAPL: "Apple Inc.",
@@ -20,6 +21,7 @@ interface WatchlistCardProps {
 }
 
 export const WatchlistCard: React.FC<WatchlistCardProps> = ({ symbol }) => {
+  const router = useRouter();
   const upperSymbol = symbol.toUpperCase().trim();
   const companyName = COMPANY_NAMES[upperSymbol] || "Unknown Corp";
 
@@ -59,16 +61,16 @@ export const WatchlistCard: React.FC<WatchlistCardProps> = ({ symbol }) => {
 
   if (quote.isLoading) {
     return (
-      <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 flex flex-col justify-between shadow-lg h-[142px]">
+      <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 flex flex-col justify-between shadow-lg h-[145px]">
         <div className="flex justify-between items-start">
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <Skeleton className="h-5 w-12" />
             <Skeleton className="h-3 w-20" />
           </div>
           <Skeleton className="h-7 w-20" />
         </div>
         <div className="flex justify-between items-end mt-6">
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <Skeleton className="h-5 w-16" />
             <Skeleton className="h-3 w-10" />
           </div>
@@ -79,52 +81,60 @@ export const WatchlistCard: React.FC<WatchlistCardProps> = ({ symbol }) => {
   }
 
   return (
-    <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 flex flex-col justify-between hover:bg-slate-900/85 hover:border-slate-700/60 transition-all duration-300 group shadow-lg">
-      <div className="flex justify-between items-start">
+    <div 
+      onClick={() => router.push(`/trading/${upperSymbol}`)}
+      className="relative bg-gradient-to-br from-slate-900/50 to-slate-900/90 border border-slate-800/60 hover:border-sky-500/30 rounded-2xl p-5 flex flex-col justify-between hover:bg-slate-900/90 hover:scale-[1.02] hover:shadow-[0_8px_30px_rgb(0,0,0,0.4)] transition-all duration-300 group cursor-pointer overflow-hidden"
+    >
+      {/* Dynamic background pulse glow corresponding to stock gains/losses */}
+      <div className={`absolute -right-6 -bottom-6 h-16 w-16 rounded-full blur-[35px] opacity-10 group-hover:scale-150 transition-all ${
+        isPositive ? "bg-emerald-500" : "bg-rose-500"
+      }`} />
+
+      <div className="flex justify-between items-start z-10">
         {/* Symbol and Name */}
         <div>
-          <h2 className="text-lg font-bold text-white tracking-tight group-hover:text-sky-400 transition-colors">
+          <h2 className="text-lg font-black text-white tracking-tight group-hover:text-sky-400 transition-colors uppercase">
             {upperSymbol}
           </h2>
-          <p className="text-xs text-slate-400 font-medium truncate max-w-[140px]">
+          <p className="text-[10px] text-slate-500 font-extrabold truncate max-w-[100px] uppercase tracking-wider mt-0.5">
             {companyName}
           </p>
         </div>
 
         {/* Live Price Display */}
         <div className="text-right">
-          <PriceDisplay price={quote.price} change={quote.change} />
+          <PriceDisplay price={quote.price} change={quote.change} className="text-sm font-black border-slate-800/40" />
         </div>
       </div>
 
-      <div className="flex justify-between items-end mt-6">
+      <div className="flex justify-between items-end mt-6 z-10">
         {/* Daily Change indicator */}
         <div>
           <span
-            className={`text-xs font-bold font-mono px-2 py-0.5 rounded-full ${
+            className={`text-[10px] font-black font-mono px-2 py-0.5 rounded-full shadow-sm border ${
               isPositive 
-                ? "bg-emerald-500/10 text-emerald-400" 
-                : "bg-rose-500/10 text-rose-400"
+                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" 
+                : "bg-rose-500/10 text-rose-400 border-rose-500/20"
             }`}
           >
             {isPositive ? "+" : ""}
             {quote.changePercent.toFixed(2)}%
           </span>
-          <p className="text-[10px] text-slate-500 font-semibold mt-1 uppercase tracking-wider">
+          <p className="text-[9px] text-slate-500 font-bold mt-1.5 uppercase tracking-wider">
             Daily Change
           </p>
         </div>
 
         {/* Sparkline Visual */}
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-end group-hover:scale-[1.03] transition-transform duration-300">
           {isSparklineLoading ? (
             <Skeleton className="h-9 w-24" />
           ) : error ? (
-            <span className="text-[10px] text-slate-600 font-medium italic">Trend unavailable</span>
+            <span className="text-[9px] text-slate-600 font-extrabold italic uppercase tracking-wider">Trend NA</span>
           ) : sparklineData.length > 0 ? (
             <MiniSparkline data={sparklineData} isPositive={isPositive} />
           ) : (
-            <span className="text-xs text-slate-600 font-medium">No trend data</span>
+            <span className="text-xs text-slate-600 font-medium">No trend</span>
           )}
         </div>
       </div>

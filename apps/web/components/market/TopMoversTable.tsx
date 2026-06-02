@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import { Skeleton } from "../ui/skeleton";
+import { ArrowUpRight, ArrowDownRight, ChevronUp, ChevronDown } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export interface Mover {
   symbol: string;
@@ -24,6 +26,7 @@ export const TopMoversTable: React.FC<TopMoversTableProps> = ({
   isLoading = false,
   error = null,
 }) => {
+  const router = useRouter();
   const [gainerSortKey, setGainerSortKey] = useState<SortKey>("changePercent");
   const [gainerSortDesc, setGainerSortDesc] = useState(true);
 
@@ -66,7 +69,7 @@ export const TopMoversTable: React.FC<TopMoversTableProps> = ({
 
   if (error) {
     return (
-      <div className="bg-slate-900/40 border border-red-500/20 rounded-2xl p-5 shadow-lg flex flex-col items-center justify-center text-center space-y-3 min-h-[250px] w-full">
+      <div className="bg-slate-900/40 border border-red-500/20 rounded-2xl p-6 shadow-lg flex flex-col items-center justify-center text-center space-y-3 min-h-[250px] w-full backdrop-blur-md">
         <div className="h-10 w-10 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center shadow-md">
           <svg className="w-5 h-5 text-red-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -80,52 +83,62 @@ export const TopMoversTable: React.FC<TopMoversTableProps> = ({
     );
   }
 
+  const renderSortIndicator = (key: SortKey, currentKey: SortKey, desc: boolean) => {
+    if (currentKey !== key) return null;
+    return desc ? <ChevronDown className="h-3 w-3 ml-0.5 inline-block" /> : <ChevronUp className="h-3 w-3 ml-0.5 inline-block" />;
+  };
+
   const renderTable = (
     column: "gainers" | "losers",
     list: Mover[],
-    key: SortKey,
+    currentKey: SortKey,
     desc: boolean
   ) => {
     const isGainer = column === "gainers";
 
     return (
-      <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 shadow-lg flex-1">
+      <div className="bg-slate-900/30 border border-slate-800/80 rounded-2xl p-5 md:p-6 shadow-xl flex-1 backdrop-blur-md relative overflow-hidden group">
+        {/* Visual corner badge */}
+        <div className={`absolute top-0 right-0 h-[2px] w-24 bg-gradient-to-r ${
+          isGainer ? "from-emerald-500 to-transparent" : "from-rose-500 to-transparent"
+        }`} />
+
         <h3
-          className={`text-sm font-extrabold mb-4 flex items-center uppercase tracking-wider ${
+          className={`text-xs font-extrabold mb-5 flex items-center uppercase tracking-wider ${
             isGainer ? "text-emerald-400" : "text-rose-400"
           }`}
         >
           <span
-            className={`h-2 w-2 rounded-full mr-2.5 ${
+            className={`h-2.5 w-2.5 rounded-full mr-2.5 border ${
               isGainer
-                ? "bg-emerald-400 animate-pulse shadow-[0_0_8px_#10b981]"
-                : "bg-rose-400 shadow-[0_0_8px_#f43f5e]"
+                ? "bg-emerald-500 border-emerald-400/40 animate-pulse shadow-[0_0_10px_#10b981]"
+                : "bg-rose-500 border-rose-400/40 shadow-[0_0_10px_#f43f5e]"
             }`}
           />
           {isGainer ? "Top Gainers" : "Top Losers"}
         </h3>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[200px]">
+        <div className="overflow-x-auto no-scrollbar">
+          <table className="w-full text-left border-collapse min-w-[240px]">
             <thead>
-              <tr className="border-b border-slate-800/80 text-slate-500 font-bold text-[10px] uppercase tracking-wider">
+              <tr className="border-b border-slate-800/80 text-slate-500 font-extrabold text-[10px] uppercase tracking-wider">
                 <th
-                  className="pb-2 cursor-pointer hover:text-white select-none transition-colors"
+                  className="pb-3 cursor-pointer hover:text-white select-none transition-colors align-middle"
                   onClick={() => handleSort(column, "symbol")}
                 >
-                  Symbol {key === "symbol" ? (desc ? "▼" : "▲") : ""}
+                  Symbol {renderSortIndicator("symbol", currentKey, desc)}
                 </th>
                 <th
-                  className="pb-2 text-right cursor-pointer hover:text-white select-none transition-colors"
+                  className="pb-3 text-right cursor-pointer hover:text-white select-none transition-colors align-middle"
                   onClick={() => handleSort(column, "price")}
                 >
-                  Price {key === "price" ? (desc ? "▼" : "▲") : ""}
+                  Price {renderSortIndicator("price", currentKey, desc)}
                 </th>
                 <th
-                  className="pb-2 text-right cursor-pointer hover:text-white select-none transition-colors"
+                  className="pb-3 text-right cursor-pointer hover:text-white select-none transition-colors align-middle"
                   onClick={() => handleSort(column, "changePercent")}
                 >
-                  Change% {key === "changePercent" ? (desc ? "▼" : "▲") : ""}
+                  Change% {renderSortIndicator("changePercent", currentKey, desc)}
                 </th>
               </tr>
             </thead>
@@ -133,37 +146,44 @@ export const TopMoversTable: React.FC<TopMoversTableProps> = ({
               {isLoading ? (
                 [1, 2, 3, 4, 5].map((i) => (
                   <tr key={i}>
-                    <td className="py-3">
-                      <Skeleton className="h-4 w-12" />
+                    <td className="py-3.5">
+                      <Skeleton className="h-4.5 w-12" />
                     </td>
-                    <td className="py-3 text-right">
-                      <Skeleton className="h-4 w-16 ml-auto" />
+                    <td className="py-3.5 text-right">
+                      <Skeleton className="h-4.5 w-16 ml-auto" />
                     </td>
-                    <td className="py-3 text-right">
-                      <Skeleton className="h-4 w-12 ml-auto" />
+                    <td className="py-3.5 text-right">
+                      <Skeleton className="h-4.5 w-12 ml-auto" />
                     </td>
                   </tr>
                 ))
               ) : list.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="py-8 text-center text-xs text-slate-500 font-medium">
+                  <td colSpan={3} className="py-8 text-center text-xs text-slate-500 font-bold select-none italic">
                     No active movers today
                   </td>
                 </tr>
               ) : (
                 list.map((item) => (
-                  <tr key={item.symbol} className="text-xs hover:bg-slate-800/10 transition-all">
-                    <td className="py-3 font-bold text-white tracking-wide">{item.symbol}</td>
-                    <td className="py-3 text-right font-mono text-slate-300">
+                  <tr 
+                    key={item.symbol} 
+                    onClick={() => router.push(`/trading/${item.symbol.toUpperCase()}`)}
+                    className="text-xs hover:bg-slate-800/20 transition-all duration-150 cursor-pointer"
+                  >
+                    <td className="py-3.5 font-bold text-white tracking-wide uppercase">{item.symbol}</td>
+                    <td className="py-3.5 text-right font-mono font-semibold text-slate-350">
                       ${item.price.toFixed(2)}
                     </td>
                     <td
-                      className={`py-3 text-right font-mono font-bold ${
-                        isGainer ? "text-emerald-400" : "text-rose-400"
+                      className={`py-3.5 text-right font-mono font-extrabold flex items-center justify-end space-x-1 ${
+                        isGainer ? "text-emerald-405 text-emerald-405 bg-emerald-500/0" : "text-rose-405"
                       }`}
                     >
-                      {isGainer ? "+" : ""}
-                      {item.changePercent.toFixed(2)}%
+                      <span>
+                        {isGainer ? <ArrowUpRight className="h-3 w-3 text-emerald-400 inline-block mr-0.5" /> : <ArrowDownRight className="h-3 w-3 text-rose-400 inline-block mr-0.5" />}
+                        {isGainer ? "+" : ""}
+                        {item.changePercent.toFixed(2)}%
+                      </span>
                     </td>
                   </tr>
                 ))

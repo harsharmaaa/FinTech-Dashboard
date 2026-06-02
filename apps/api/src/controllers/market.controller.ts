@@ -219,18 +219,20 @@ export async function getEarnings(req: Request, res: Response, next: NextFunctio
       if (dayOfWeek === 6) reportDate.setDate(reportDate.getDate() - 1); // Saturday -> Friday
 
       earnings.push({
-        symbol,
-        companyName: companyNames[symbol] || "Unknown Corp",
-        date: reportDate.toISOString().split("T")[0],
-        fiscalQuarter: "Q2 2026",
-        epsEstimate: (0.5 + Math.random() * 3.5).toFixed(2),
-        revenueEstimate: `${(10 + Math.random() * 90).toFixed(1)}B`,
-        period: i % 2 === 0 ? "Before Market" : "After Market"
-      });
+  symbol,
+  companyName: companyNames[symbol] || "Unknown Corp",
+  date: reportDate.toISOString().split("T")[0] ?? "",
+  fiscalQuarter: "Q2 2026",
+  epsEstimate: (0.5 + Math.random() * 3.5).toFixed(2),
+  revenueEstimate: `${(10 + Math.random() * 90).toFixed(1)}B`,
+  period: i % 2 === 0 ? "Before Market" : "After Market"
+});
     }
 
     // Sort chronologically
-    earnings.sort((a, b) => a.date.localeCompare(b.date));
+    earnings.sort((a, b) =>
+  (a.date ?? "").localeCompare(b.date ?? "")
+);
 
     res.status(200).json({
       status: "success",
